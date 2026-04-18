@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post Opportunity · CMU Research Portal</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="post-page">
+
+  <nav class="topnav">
+    <a href="index.html" class="nav-logo">CMU Research Portal</a>
+    <a href="find.html" class="nav-switch" onclick="sessionStorage.setItem('view','find')">Browse Opportunities →</a>
+  </nav>
+
+  <main class="post-main">
+    <div class="post-container">
+
+      <!-- STEP 1: Email verification -->
+      <section id="step-verify" class="post-step active">
+        <div class="step-header">
+          <span class="step-num">01</span>
+          <h2>Verify your CMU email</h2>
+          <p>You'll receive a 6-digit code to confirm your identity before posting.</p>
+        </div>
+        <div class="form-group">
+          <label for="poster-email">Andrew email address</label>
+          <input type="email" id="poster-email" placeholder="you@andrew.cmu.edu" />
+          <span class="field-error" id="email-error"></span>
+        </div>
+        <button class="btn-primary" id="send-code-btn" onclick="sendVerificationCode()">Send verification code</button>
+      </section>
+
+      <!-- STEP 2: Enter code -->
+      <section id="step-code" class="post-step">
+        <div class="step-header">
+          <span class="step-num">02</span>
+          <h2>Enter verification code</h2>
+          <p id="code-sent-to">A 6-digit code was sent to your email.</p>
+        </div>
+        <div class="form-group">
+          <label for="verify-code">Verification code</label>
+          <input type="text" id="verify-code" placeholder="123456" maxlength="6" />
+          <span class="field-error" id="code-error"></span>
+        </div>
+        <button class="btn-primary" onclick="checkCode()">Confirm code</button>
+        <button class="btn-ghost" onclick="resetToEmail()">← Use a different email</button>
+      </section>
+
+      <!-- STEP 3: Posting form -->
+      <section id="step-form" class="post-step">
+        <div class="step-header">
+          <span class="step-num">03</span>
+          <h2>Create your posting</h2>
+          <p>Fill in the details of your research opportunity.</p>
+        </div>
+
+        <div class="form-grid">
+
+          <div class="form-group full">
+            <label for="f-title">Title <span class="char-limit">(max 20 characters)</span></label>
+            <input type="text" id="f-title" maxlength="20" placeholder="e.g. ML for Drug Discovery" oninput="updateCharCount(this, 'title-count', 20)" />
+            <span class="char-counter" id="title-count">0 / 20</span>
+            <span class="field-error" id="err-title"></span>
+          </div>
+
+          <div class="form-group full">
+            <label for="f-description">Description <span class="char-limit">(max 200 words)</span></label>
+            <textarea id="f-description" rows="6" placeholder="Describe the research project, goals, and what the student will be doing..." oninput="updateWordCount(this, 'desc-count', 200)"></textarea>
+            <span class="char-counter" id="desc-count">0 / 200 words</span>
+            <span class="field-error" id="err-description"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-category">Category</label>
+            <select id="f-category">
+              <option value="">Select a category...</option>
+              <option>Computer Science</option>
+              <option>Humanities</option>
+              <option>Biology</option>
+              <option>Chemistry</option>
+              <option>Physics</option>
+              <option>Mathematics & Statistics</option>
+              <option>Medicine & Health Sciences</option>
+              <option>Psychology</option>
+              <option>Neuroscience</option>
+              <option>Economics & Business</option>
+              <option>Engineering</option>
+              <option>Environmental Science</option>
+              <option>Social Sciences</option>
+              <option>Arts & Design</option>
+              <option>Law & Public Policy</option>
+              <option>Information Systems</option>
+              <option>Other</option>
+            </select>
+            <span class="field-error" id="err-category"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-department">Department / Lab affiliation</label>
+            <input type="text" id="f-department" placeholder="e.g. School of Computer Science, Robotics Institute" />
+            <span class="field-error" id="err-department"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-role">Your title / role</label>
+            <input type="text" id="f-role" placeholder="e.g. Assistant Professor, PhD Candidate" />
+            <span class="field-error" id="err-role"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-job-role">Research position title</label>
+            <input type="text" id="f-job-role" placeholder="e.g. Research Assistant, Lab Intern" />
+            <span class="field-error" id="err-job-role"></span>
+          </div>
+
+          <div class="form-group full">
+            <label for="f-skills">Preferred skills</label>
+            <input type="text" id="f-skills" placeholder="e.g. Python, data analysis, wet lab experience" />
+          </div>
+
+          <div class="form-group">
+            <label for="f-start">Start date</label>
+            <input type="date" id="f-start" />
+            <span class="field-error" id="err-start"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-end">End date</label>
+            <input type="date" id="f-end" />
+            <span class="field-error" id="err-end"></span>
+          </div>
+
+          <div class="form-group full">
+            <label>Student years sought</label>
+            <div class="checkbox-group" id="f-years">
+              <label class="checkbox-item"><input type="checkbox" value="Undergraduate First-Year" /> First-Year</label>
+              <label class="checkbox-item"><input type="checkbox" value="Undergraduate Sophomore" /> Sophomore</label>
+              <label class="checkbox-item"><input type="checkbox" value="Undergraduate Junior" /> Junior</label>
+              <label class="checkbox-item"><input type="checkbox" value="Undergraduate Senior" /> Senior</label>
+              <label class="checkbox-item"><input type="checkbox" value="Graduate Student" /> Graduate</label>
+            </div>
+            <span class="field-error" id="err-years"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-max-appls">Max applications <span class="char-limit">(1–20)</span></label>
+            <input type="number" id="f-max-appls" min="1" max="20" placeholder="e.g. 5" />
+            <span class="field-error" id="err-max-appls"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="f-deadline">Posting removal date</label>
+            <input type="date" id="f-deadline" />
+            <span class="field-error" id="err-deadline"></span>
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary" onclick="submitPosting()">Publish opportunity</button>
+        </div>
+        <span class="field-error" id="err-submit"></span>
+      </section>
+
+      <!-- STEP 4: Success -->
+      <section id="step-success" class="post-step">
+        <div class="success-screen">
+          <div class="success-icon">✦</div>
+          <h2>Opportunity posted!</h2>
+          <p>A confirmation has been sent to your email address. Your posting is now live.</p>
+          <a href="index.html" class="btn-primary">Return home</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Edit modal -->
+  <div id="edit-modal" class="modal-overlay" style="display:none">
+    <div class="modal">
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+      <h3>Edit Posting</h3>
+      <p>Enter the email address associated with this posting to verify ownership.</p>
+      <div class="form-group">
+        <label>Email address on this posting</label>
+        <input type="email" id="edit-email-input" placeholder="you@andrew.cmu.edu" />
+        <span class="field-error" id="edit-email-error"></span>
+      </div>
+      <button class="btn-primary" onclick="sendEditCode()">Send verification code</button>
+
+      <div id="edit-code-section" style="display:none">
+        <div class="form-group" style="margin-top:1.5rem">
+          <label>Verification code</label>
+          <input type="text" id="edit-code-input" placeholder="123456" maxlength="6" />
+          <span class="field-error" id="edit-code-error"></span>
+        </div>
+        <button class="btn-primary" onclick="verifyEditCode()">Confirm & edit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://anxpjjdkeckdfnzhhjer.supabase.co';
+    const SUPABASE_ANON = 'sb_publishable_WZm3lOvsWogZj3scOjmZ2Q_jgtWG5Po';
+
+    let verifiedEmail = null;
+    let generatedCode = null;
+    let editGeneratedCode = null;
+    let editPostingId = null;
+
+    // ─── Helpers ────────────────────────────────────────────────
+    function sb(path, opts = {}) {
+      return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${SUPABASE_ANON}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation',
+          ...opts.headers
+        },
+        ...opts
+      });
+    }
+
+    async function sendEmail(to, subject, html, attachmentUrl = null) {
+      // Calls our Supabase Edge Function
+      const body = { to, subject, html };
+      if (attachmentUrl) body.attachmentUrl = attachmentUrl;
+      await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON}`
+        },
+        body: JSON.stringify(body)
+      });
+    }
+
+    function randomCode() {
+      return String(Math.floor(100000 + Math.random() * 900000));
+    }
+
+    function showStep(id) {
+      document.querySelectorAll('.post-step').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function updateCharCount(el, counterId, max) {
+      document.getElementById(counterId).textContent = `${el.value.length} / ${max}`;
+    }
+
+    function updateWordCount(el, counterId, max) {
+      const words = el.value.trim() === '' ? 0 : el.value.trim().split(/\s+/).length;
+      const counter = document.getElementById(counterId);
+      counter.textContent = `${words} / ${max} words`;
+      counter.classList.toggle('over-limit', words > max);
+    }
+
+    function wordCount(str) {
+      return str.trim() === '' ? 0 : str.trim().split(/\s+/).length;
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+    }
+
+    // ─── Step 1: Send verification code ─────────────────────────
+    async function sendVerificationCode() {
+      const email = document.getElementById('poster-email').value.trim();
+      const errEl = document.getElementById('email-error');
+      errEl.textContent = '';
+
+      if (!email.endsWith('@andrew.cmu.edu')) {
+        errEl.textContent = 'You must use your CMU-affiliated email address (@andrew.cmu.edu).';
+        return;
+      }
+
+      const btn = document.getElementById('send-code-btn');
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+
+      generatedCode = randomCode();
+
+      await sendEmail(
+        email,
+        'CMU Research Portal – Verification Code',
+        `<p>Your verification code is: <strong>${generatedCode}</strong></p><p>Enter this on the site to continue.</p>`
+      );
+
+      verifiedEmail = email;
+      document.getElementById('code-sent-to').textContent = `A 6-digit code was sent to ${email}.`;
+      showStep('step-code');
+      btn.textContent = 'Send verification code';
+      btn.disabled = false;
+    }
+
+    // ─── Step 2: Check code ──────────────────────────────────────
+    function checkCode() {
+      const entered = document.getElementById('verify-code').value.trim();
+      const errEl = document.getElementById('code-error');
+      if (entered !== generatedCode) {
+        errEl.textContent = 'Incorrect code. Please try again.';
+        return;
+      }
+      showStep('step-form');
+    }
+
+    function resetToEmail() {
+      generatedCode = null;
+      verifiedEmail = null;
+      document.getElementById('poster-email').value = '';
+      document.getElementById('verify-code').value = '';
+      showStep('step-verify');
+    }
+
+    // ─── Step 3: Submit posting ──────────────────────────────────
+    async function submitPosting() {
+      clearErrors();
+      let valid = true;
+
+      const title = document.getElementById('f-title').value.trim();
+      const description = document.getElementById('f-description').value.trim();
+      const category = document.getElementById('f-category').value;
+      const department = document.getElementById('f-department').value.trim();
+      const role = document.getElementById('f-role').value.trim();
+      const jobRole = document.getElementById('f-job-role').value.trim();
+      const skills = document.getElementById('f-skills').value.trim();
+      const startDate = document.getElementById('f-start').value;
+      const endDate = document.getElementById('f-end').value;
+      const checkedYears = [...document.querySelectorAll('#f-years input:checked')].map(c => c.value);
+      const maxAppls = parseInt(document.getElementById('f-max-appls').value);
+      const deadline = document.getElementById('f-deadline').value;
+
+      if (!title) { document.getElementById('err-title').textContent = 'Required.'; valid = false; }
+      if (wordCount(description) > 200) { document.getElementById('err-description').textContent = 'Max 200 words.'; valid = false; }
+      if (!description) { document.getElementById('err-description').textContent = 'Required.'; valid = false; }
+      if (!category) { document.getElementById('err-category').textContent = 'Required.'; valid = false; }
+      if (!department) { document.getElementById('err-department').textContent = 'Required.'; valid = false; }
+      if (!role) { document.getElementById('err-role').textContent = 'Required.'; valid = false; }
+      if (!jobRole) { document.getElementById('err-job-role').textContent = 'Required.'; valid = false; }
+      if (!startDate) { document.getElementById('err-start').textContent = 'Required.'; valid = false; }
+      if (!endDate) { document.getElementById('err-end').textContent = 'Required.'; valid = false; }
+      if (checkedYears.length === 0) { document.getElementById('err-years').textContent = 'Select at least one.'; valid = false; }
+      if (!maxAppls || maxAppls < 1 || maxAppls > 20) { document.getElementById('err-max-appls').textContent = 'Must be between 1 and 20.'; valid = false; }
+      if (!deadline) { document.getElementById('err-deadline').textContent = 'Required.'; valid = false; }
+
+      if (!valid) return;
+
+      const payload = {
+        title,
+        description,
+        email_add: verifiedEmail,
+        category,
+        department_aff: department,
+        role,
+        job_role: jobRole,
+        skills,
+        start_date: startDate,
+        end_date: endDate,
+        student_year: checkedYears.join(', '),
+        max_appls: maxAppls,
+        deadline
+      };
+
+      const res = await sb('opportunities', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        document.getElementById('err-submit').textContent = 'Something went wrong. Please try again.';
+        return;
+      }
+
+      // Send confirmation email to poster
+      await sendEmail(
+        verifiedEmail,
+        'CMU Research Portal – Posting Confirmed',
+        `<p>Your research opportunity <strong>"${title}"</strong> has been posted successfully.</p>
+         <p>You will receive an email for each application submitted.</p>
+         <p>To edit your posting, visit the site and click "Edit Post" on your listing.</p>`
+      );
+
+      showStep('step-success');
+    }
+
+    // ─── Edit modal (used from find.html via postMessage or direct call) ─
+    function openEditModal(postingId) {
+      editPostingId = postingId;
+      document.getElementById('edit-modal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').style.display = 'none';
+      editGeneratedCode = null;
+      editPostingId = null;
+      document.getElementById('edit-email-input').value = '';
+      document.getElementById('edit-code-section').style.display = 'none';
+    }
+
+    async function sendEditCode() {
+      const email = document.getElementById('edit-email-input').value.trim();
+      const errEl = document.getElementById('edit-email-error');
+      errEl.textContent = '';
+
+      if (!email.endsWith('@andrew.cmu.edu')) {
+        errEl.textContent = 'You must use your CMU-affiliated email address.';
+        return;
+      }
+
+      // Check that this email matches the posting
+      const res = await sb(`opportunities?id=eq.${editPostingId}&select=email_add`);
+      const data = await res.json();
+      if (!data.length || data[0].email_add !== email) {
+        errEl.textContent = 'This email address does not match the posting.';
+        return;
+      }
+
+      editGeneratedCode = randomCode();
+      await sendEmail(
+        email,
+        'CMU Research Portal – Edit Verification Code',
+        `<p>Your verification code to edit your posting is: <strong>${editGeneratedCode}</strong></p>`
+      );
+      document.getElementById('edit-code-section').style.display = 'block';
+    }
+
+    async function verifyEditCode() {
+      const entered = document.getElementById('edit-code-input').value.trim();
+      const errEl = document.getElementById('edit-code-error');
+      if (entered !== editGeneratedCode) {
+        errEl.textContent = 'Incorrect code.';
+        return;
+      }
+      // Redirect to edit form
+      sessionStorage.setItem('editPostingId', editPostingId);
+      sessionStorage.setItem('editEmail', document.getElementById('edit-email-input').value.trim());
+      window.location.href = `edit.html`;
+    }
+  </script>
+</body>
+</html>

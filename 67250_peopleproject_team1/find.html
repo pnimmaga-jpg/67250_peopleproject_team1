@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Research · CMU Research Portal</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="find-page">
+
+  <nav class="topnav">
+    <a href="index.html" class="nav-logo">CMU Research Portal</a>
+    <a href="post.html" class="nav-switch" onclick="sessionStorage.setItem('view','post')">Post an Opportunity →</a>
+  </nav>
+
+  <div class="find-layout">
+
+    <!-- LEFT PANEL: listing + filters -->
+    <aside class="listings-panel">
+      <div class="listings-top">
+        <h2 class="listings-title">Opportunities</h2>
+        <button class="filter-toggle" onclick="toggleFilters()">⚙ Filters</button>
+      </div>
+
+      <div class="filter-drawer" id="filter-drawer">
+        <div class="filter-section">
+          <label class="filter-label">Category</label>
+          <select id="filter-category" onchange="applyFilters()">
+            <option value="">All categories</option>
+            <option>Computer Science</option>
+            <option>Humanities</option>
+            <option>Biology</option>
+            <option>Chemistry</option>
+            <option>Physics</option>
+            <option>Mathematics & Statistics</option>
+            <option>Medicine & Health Sciences</option>
+            <option>Psychology</option>
+            <option>Neuroscience</option>
+            <option>Economics & Business</option>
+            <option>Engineering</option>
+            <option>Environmental Science</option>
+            <option>Social Sciences</option>
+            <option>Arts & Design</option>
+            <option>Law & Public Policy</option>
+            <option>Information Systems</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="filter-section">
+          <label class="filter-label">Department</label>
+          <input type="text" id="filter-dept" placeholder="e.g. Robotics Institute" oninput="applyFilters()" />
+        </div>
+        <div class="filter-section">
+          <label class="filter-label">Student year</label>
+          <div class="checkbox-group small" id="filter-years">
+            <label class="checkbox-item"><input type="checkbox" value="Undergraduate First-Year" onchange="applyFilters()" /> First-Year</label>
+            <label class="checkbox-item"><input type="checkbox" value="Undergraduate Sophomore" onchange="applyFilters()" /> Sophomore</label>
+            <label class="checkbox-item"><input type="checkbox" value="Undergraduate Junior" onchange="applyFilters()" /> Junior</label>
+            <label class="checkbox-item"><input type="checkbox" value="Undergraduate Senior" onchange="applyFilters()" /> Senior</label>
+            <label class="checkbox-item"><input type="checkbox" value="Graduate Student" onchange="applyFilters()" /> Graduate</label>
+          </div>
+        </div>
+        <button class="btn-ghost small" onclick="clearFilters()">Clear filters</button>
+      </div>
+
+      <div class="listings-list" id="listings-list">
+        <div class="loading-msg">Loading opportunities…</div>
+      </div>
+    </aside>
+
+    <!-- RIGHT PANEL: detail + apply -->
+    <main class="detail-panel" id="detail-panel">
+      <div class="detail-empty" id="detail-empty">
+        <span class="detail-empty-icon">◎</span>
+        <p>Select an opportunity to view details</p>
+      </div>
+
+      <!-- Posting detail view -->
+      <div id="detail-view" style="display:none">
+        <div class="detail-header">
+          <div class="detail-meta-top">
+            <span class="detail-category" id="d-category"></span>
+            <span class="detail-date" id="d-date"></span>
+          </div>
+          <h2 class="detail-title" id="d-title"></h2>
+          <div class="detail-sub">
+            <span id="d-role"></span> · <span id="d-department"></span>
+          </div>
+          <button class="btn-edit" id="edit-post-btn" onclick="openEditFlow()">Edit post</button>
+        </div>
+
+        <div class="detail-body">
+          <section class="detail-section">
+            <h4>About the project</h4>
+            <p id="d-description"></p>
+          </section>
+          <section class="detail-section detail-grid">
+            <div>
+              <h4>Position</h4>
+              <p id="d-job-role"></p>
+            </div>
+            <div>
+              <h4>Timeline</h4>
+              <p id="d-timeline"></p>
+            </div>
+            <div>
+              <h4>Looking for</h4>
+              <p id="d-years"></p>
+            </div>
+            <div>
+              <h4>Skills</h4>
+              <p id="d-skills"></p>
+            </div>
+          </section>
+        </div>
+
+        <div class="detail-divider"></div>
+
+        <!-- Application form -->
+        <div class="apply-section" id="apply-section">
+          <h3>Apply for this position</h3>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="a-name">Full name</label>
+              <input type="text" id="a-name" placeholder="Your name" />
+              <span class="field-error" id="err-a-name"></span>
+            </div>
+            <div class="form-group">
+              <label for="a-year">Student year</label>
+              <select id="a-year">
+                <option value="">Select...</option>
+                <option>Undergraduate First-Year</option>
+                <option>Undergraduate Sophomore</option>
+                <option>Undergraduate Junior</option>
+                <option>Undergraduate Senior</option>
+                <option>Graduate Student</option>
+              </select>
+              <span class="field-error" id="err-a-year"></span>
+            </div>
+            <div class="form-group">
+              <label for="a-email">Andrew email address</label>
+              <input type="email" id="a-email" placeholder="you@andrew.cmu.edu" />
+              <span class="field-error" id="err-a-email"></span>
+            </div>
+            <div class="form-group">
+              <label for="a-major">Major</label>
+              <input type="text" id="a-major" placeholder="e.g. Computer Science" />
+              <span class="field-error" id="err-a-major"></span>
+            </div>
+            <div class="form-group full">
+              <label for="a-interest">Reason for interest <span class="char-limit">(max 200 words)</span></label>
+              <textarea id="a-interest" rows="5" placeholder="Why are you interested in this project?" oninput="updateWordCountFind(this, 'interest-count', 200)"></textarea>
+              <span class="char-counter" id="interest-count">0 / 200 words</span>
+              <span class="field-error" id="err-a-interest"></span>
+            </div>
+            <div class="form-group full">
+              <label for="a-resume">Resume <span class="char-limit">(PDF only, max 1MB)</span></label>
+              <input type="file" id="a-resume" accept=".pdf" onchange="checkFileSize(this)" />
+              <span class="field-error" id="err-a-resume"></span>
+            </div>
+            <div class="form-group full">
+              <label for="a-additional">Additional details <span class="char-limit">(optional)</span></label>
+              <textarea id="a-additional" rows="3" placeholder="Anything else you'd like to share..."></textarea>
+            </div>
+          </div>
+
+          <!-- Email verification for applicant -->
+          <div id="app-verify-section" style="display:none" class="verify-inline">
+            <p>A verification code was sent to <strong id="app-verify-email"></strong>. Enter it below:</p>
+            <div class="verify-inline-row">
+              <input type="text" id="app-verify-code" placeholder="123456" maxlength="6" />
+              <button class="btn-primary small" onclick="confirmAppCode()">Confirm</button>
+            </div>
+            <span class="field-error" id="err-app-code"></span>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" id="apply-btn" onclick="startApply()">Submit application</button>
+          </div>
+          <span class="field-error" id="err-apply"></span>
+        </div>
+
+        <!-- Already applied notice -->
+        <div id="already-applied" style="display:none" class="already-applied-notice">
+          <span>✓</span> You have already applied to this opportunity.
+        </div>
+
+        <!-- Closed notice -->
+        <div id="posting-closed" style="display:none" class="closed-notice">
+          This opportunity is no longer accepting applications.
+        </div>
+      </div>
+
+      <!-- Application success -->
+      <div id="apply-success" style="display:none" class="apply-success-screen">
+        <div class="success-icon">◎</div>
+        <h3>Application submitted!</h3>
+        <p>A receipt has been sent to your email address. Good luck!</p>
+        <button class="btn-ghost" onclick="backToListing()">← Back to listing</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Edit modal (verify ownership) -->
+  <div id="edit-modal" class="modal-overlay" style="display:none">
+    <div class="modal">
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+      <h3>Edit Posting</h3>
+      <p>Enter the email address associated with this posting to verify ownership.</p>
+      <div class="form-group">
+        <label>Email address on this posting</label>
+        <input type="email" id="edit-email-input" placeholder="you@andrew.cmu.edu" />
+        <span class="field-error" id="edit-email-error"></span>
+      </div>
+      <button class="btn-primary" id="edit-send-btn" onclick="sendEditCode()">Send verification code</button>
+
+      <div id="edit-code-section" style="display:none">
+        <div class="form-group" style="margin-top:1.5rem">
+          <label>Verification code</label>
+          <input type="text" id="edit-code-input" placeholder="123456" maxlength="6" />
+          <span class="field-error" id="edit-code-error"></span>
+        </div>
+        <button class="btn-primary" onclick="verifyEditCode()">Confirm & edit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit form modal -->
+  <div id="edit-form-modal" class="modal-overlay" style="display:none">
+    <div class="modal modal-wide">
+      <button class="modal-close" onclick="closeEditFormModal()">✕</button>
+      <h3>Edit Posting</h3>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Title <span class="char-limit">(max 20 characters)</span></label>
+          <input type="text" id="ef-title" maxlength="20" oninput="updateCharCount(this,'ef-title-count',20)" />
+          <span class="char-counter" id="ef-title-count">0 / 20</span>
+          <span class="field-error" id="ef-err-title"></span>
+        </div>
+        <div class="form-group full">
+          <label>Description <span class="char-limit">(max 200 words)</span></label>
+          <textarea id="ef-description" rows="5" oninput="updateWordCountFind(this,'ef-desc-count',200)"></textarea>
+          <span class="char-counter" id="ef-desc-count">0 / 200 words</span>
+          <span class="field-error" id="ef-err-desc"></span>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="ef-category">
+            <option value="">Select...</option>
+            <option>Computer Science</option>
+            <option>Humanities</option>
+            <option>Biology</option>
+            <option>Chemistry</option>
+            <option>Physics</option>
+            <option>Mathematics & Statistics</option>
+            <option>Medicine & Health Sciences</option>
+            <option>Psychology</option>
+            <option>Neuroscience</option>
+            <option>Economics & Business</option>
+            <option>Engineering</option>
+            <option>Environmental Science</option>
+            <option>Social Sciences</option>
+            <option>Arts & Design</option>
+            <option>Law & Public Policy</option>
+            <option>Information Systems</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Department / Lab</label>
+          <input type="text" id="ef-department" />
+        </div>
+        <div class="form-group">
+          <label>Your title / role</label>
+          <input type="text" id="ef-role" />
+        </div>
+        <div class="form-group">
+          <label>Research position title</label>
+          <input type="text" id="ef-job-role" />
+        </div>
+        <div class="form-group full">
+          <label>Preferred skills</label>
+          <input type="text" id="ef-skills" />
+        </div>
+        <div class="form-group">
+          <label>Start date</label>
+          <input type="date" id="ef-start" />
+        </div>
+        <div class="form-group">
+          <label>End date</label>
+          <input type="date" id="ef-end" />
+        </div>
+        <div class="form-group full">
+          <label>Student years sought</label>
+          <div class="checkbox-group" id="ef-years">
+            <label class="checkbox-item"><input type="checkbox" value="Undergraduate First-Year" /> First-Year</label>
+            <label class="checkbox-item"><input type="checkbox" value="Undergraduate Sophomore" /> Sophomore</label>
+            <label class="checkbox-item"><input type="checkbox" value="Undergraduate Junior" /> Junior</label>
+            <label class="checkbox-item"><input type="checkbox" value="Undergraduate Senior" /> Senior</label>
+            <label class="checkbox-item"><input type="checkbox" value="Graduate Student" /> Graduate</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Max applications</label>
+          <input type="number" id="ef-max-appls" min="1" max="20" />
+        </div>
+        <div class="form-group">
+          <label>Removal date</label>
+          <input type="date" id="ef-deadline" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="saveEdit()">Save changes</button>
+      </div>
+      <span class="field-error" id="ef-err-submit"></span>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://anxpjjdkeckdfnzhhjer.supabase.co';
+    const SUPABASE_ANON = 'sb_publishable_WZm3lOvsWogZj3scOjmZ2Q_jgtWG5Po';
+    const BUCKET = 'resumes';
+
+    let allPostings = [];
+    let currentPosting = null;
+    let appGenCode = null;
+    let appVerifiedEmail = null;
+    let editGenCode = null;
+    let editPostingId = null;
+    let editVerifiedEmail = null;
+
+    // ─── Supabase helpers ────────────────────────────────────────
+    function sb(path, opts = {}) {
+      return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${SUPABASE_ANON}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation',
+          ...opts.headers
+        },
+        ...opts
+      });
+    }
+
+    async function sendEmail(to, subject, html, attachmentUrl) {
+      const body = { to, subject, html };
+      if (attachmentUrl) body.attachmentUrl = attachmentUrl;
+      await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON}`
+        },
+        body: JSON.stringify(body)
+      });
+    }
+
+    function randomCode() {
+      return String(Math.floor(100000 + Math.random() * 900000));
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function wordCount(str) {
+      return str.trim() === '' ? 0 : str.trim().split(/\s+/).length;
+    }
+
+    function updateWordCountFind(el, counterId, max) {
+      const words = wordCount(el.value);
+      const counter = document.getElementById(counterId);
+      counter.textContent = `${words} / ${max} words`;
+      counter.classList.toggle('over-limit', words > max);
+    }
+
+    function updateCharCount(el, counterId, max) {
+      document.getElementById(counterId).textContent = `${el.value.length} / ${max}`;
+    }
+
+    function isExpired(posting) {
+      if (!posting.deadline) return false;
+      return new Date(posting.deadline) < new Date();
+    }
+
+    // ─── Load postings ───────────────────────────────────────────
+    async function loadPostings() {
+      const today = new Date().toISOString();
+      const res = await sb(`opportunities?deadline=gte.${today}&order=created_at.desc`);
+      const data = await res.json();
+      allPostings = data;
+      renderList(allPostings);
+      if (allPostings.length > 0) openPosting(allPostings[0]);
+    }
+
+    function renderList(postings) {
+      const el = document.getElementById('listings-list');
+      if (postings.length === 0) {
+        el.innerHTML = '<div class="loading-msg">No opportunities match your filters.</div>';
+        return;
+      }
+      el.innerHTML = postings.map(p => `
+        <div class="listing-card ${currentPosting?.id === p.id ? 'active' : ''}" 
+             id="card-${p.id}" onclick="tryOpenPosting(${p.id})">
+          <div class="listing-card-top">
+            <span class="listing-category">${p.category}</span>
+            <span class="listing-date">${fmtDate(p.created_at)}</span>
+          </div>
+          <h3 class="listing-title">${p.title}</h3>
+          <p class="listing-dept">${p.department_aff}</p>
+        </div>
+      `).join('');
+    }
+
+    // ─── Filters ─────────────────────────────────────────────────
+    let filtersVisible = false;
+    function toggleFilters() {
+      filtersVisible = !filtersVisible;
+      document.getElementById('filter-drawer').classList.toggle('open', filtersVisible);
+    }
+
+    function applyFilters() {
+      const cat = document.getElementById('filter-category').value;
+      const dept = document.getElementById('filter-dept').value.trim().toLowerCase();
+      const years = [...document.querySelectorAll('#filter-years input:checked')].map(c => c.value);
+
+      const filtered = allPostings.filter(p => {
+        if (cat && p.category !== cat) return false;
+        if (dept && !p.department_aff.toLowerCase().includes(dept)) return false;
+        if (years.length > 0) {
+          const postYears = p.student_year || '';
+          if (!years.some(y => postYears.includes(y))) return false;
+        }
+        return true;
+      });
+
+      renderList(filtered);
+    }
+
+    function clearFilters() {
+      document.getElementById('filter-category').value = '';
+      document.getElementById('filter-dept').value = '';
+      document.querySelectorAll('#filter-years input').forEach(c => c.checked = false);
+      applyFilters();
+    }
+
+    // ─── Open posting ─────────────────────────────────────────────
+    let pendingSwitchId = null;
+
+    function tryOpenPosting(id) {
+      if (currentPosting?.id === id) return;
+
+      // Check if application form has content
+      const hasProgress = hasFormProgress();
+      if (hasProgress) {
+        pendingSwitchId = id;
+        if (confirm('You have unsaved progress. Switch to this posting and lose your progress?')) {
+          clearApplyForm();
+          openPosting(allPostings.find(p => p.id === id));
+        }
+        pendingSwitchId = null;
+        return;
+      }
+      openPosting(allPostings.find(p => p.id === id));
+    }
+
+    function hasFormProgress() {
+      return (
+        document.getElementById('a-name').value ||
+        document.getElementById('a-email').value ||
+        document.getElementById('a-major').value ||
+        document.getElementById('a-interest').value
+      );
+    }
+
+    function clearApplyForm() {
+      ['a-name','a-email','a-major','a-interest','a-additional'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('a-year').value = '';
+      document.getElementById('a-resume').value = '';
+      document.getElementById('app-verify-section').style.display = 'none';
+      appGenCode = null;
+      appVerifiedEmail = null;
+    }
+
+    async function openPosting(p) {
+      if (!p) return;
+      currentPosting = p;
+
+      // Update active card
+      document.querySelectorAll('.listing-card').forEach(c => c.classList.remove('active'));
+      const card = document.getElementById(`card-${p.id}`);
+      if (card) card.classList.add('active');
+
+      // Populate detail
+      document.getElementById('d-category').textContent = p.category;
+      document.getElementById('d-date').textContent = `Posted ${fmtDate(p.created_at)}`;
+      document.getElementById('d-title').textContent = p.title;
+      document.getElementById('d-role').textContent = p.role;
+      document.getElementById('d-department').textContent = p.department_aff;
+      document.getElementById('d-description').textContent = p.description;
+      document.getElementById('d-job-role').textContent = p.job_role || '—';
+      document.getElementById('d-timeline').textContent = `${fmtDate(p.start_date)} – ${fmtDate(p.end_date)}`;
+      document.getElementById('d-years').textContent = p.student_year || '—';
+      document.getElementById('d-skills').textContent = p.skills || '—';
+
+      // Reset form
+      clearApplyForm();
+      document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+
+      // Check if closed
+      const countRes = await sb(`applications?posting_id=eq.${p.id}&select=id`);
+      const countData = await countRes.json();
+      const appCount = countData.length;
+
+      document.getElementById('apply-section').style.display = 'block';
+      document.getElementById('already-applied').style.display = 'none';
+      document.getElementById('posting-closed').style.display = 'none';
+      document.getElementById('apply-success').style.display = 'none';
+      document.getElementById('detail-view').style.display = 'block';
+      document.getElementById('detail-empty').style.display = 'none';
+
+      if (appCount >= p.max_appls) {
+        document.getElementById('apply-section').style.display = 'none';
+        document.getElementById('posting-closed').style.display = 'block';
+      }
+    }
+
+    // ─── Application flow ────────────────────────────────────────
+    async function startApply() {
+      // Clear errors
+      document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+      let valid = true;
+
+      const name = document.getElementById('a-name').value.trim();
+      const year = document.getElementById('a-year').value;
+      const email = document.getElementById('a-email').value.trim();
+      const major = document.getElementById('a-major').value.trim();
+      const interest = document.getElementById('a-interest').value.trim();
+      const resumeFile = document.getElementById('a-resume').files[0];
+      const additional = document.getElementById('a-additional').value.trim();
+
+      if (!name) { document.getElementById('err-a-name').textContent = 'Required.'; valid = false; }
+      if (!year) { document.getElementById('err-a-year').textContent = 'Required.'; valid = false; }
+      if (!email) { document.getElementById('err-a-email').textContent = 'Required.'; valid = false; }
+      else if (!email.endsWith('@andrew.cmu.edu')) {
+        document.getElementById('err-a-email').textContent = 'You must use your CMU-affiliated email address (@andrew.cmu.edu).';
+        valid = false;
+      }
+      if (!major) { document.getElementById('err-a-major').textContent = 'Required.'; valid = false; }
+      if (!interest) { document.getElementById('err-a-interest').textContent = 'Required.'; valid = false; }
+      else if (wordCount(interest) > 200) { document.getElementById('err-a-interest').textContent = 'Max 200 words.'; valid = false; }
+      if (!resumeFile) { document.getElementById('err-a-resume').textContent = 'Required.'; valid = false; }
+
+      if (!valid) return;
+
+      // Check duplicate
+      const dupRes = await sb(`applications?posting_id=eq.${currentPosting.id}&email_address=eq.${encodeURIComponent(email)}&select=id`);
+      const dupData = await dupRes.json();
+      if (dupData.length > 0) {
+        document.getElementById('err-apply').textContent = 'You have already applied to this opportunity.';
+        document.getElementById('already-applied').style.display = 'block';
+        document.getElementById('apply-section').style.display = 'none';
+        return;
+      }
+
+      // Send verification code
+      appGenCode = randomCode();
+      appVerifiedEmail = email;
+      await sendEmail(
+        email,
+        'CMU Research Portal – Application Verification',
+        `<p>Your verification code to submit your application is: <strong>${appGenCode}</strong></p>`
+      );
+
+      document.getElementById('app-verify-email').textContent = email;
+      document.getElementById('app-verify-section').style.display = 'block';
+      document.getElementById('apply-btn').style.display = 'none';
+    }
+
+    async function confirmAppCode() {
+      const entered = document.getElementById('app-verify-code').value.trim();
+      if (entered !== appGenCode) {
+        document.getElementById('err-app-code').textContent = 'Incorrect code. Please try again.';
+        return;
+      }
+      await submitApplication();
+    }
+
+    async function submitApplication() {
+      const name = document.getElementById('a-name').value.trim();
+      const year = document.getElementById('a-year').value;
+      const email = appVerifiedEmail;
+      const major = document.getElementById('a-major').value.trim();
+      const interest = document.getElementById('a-interest').value.trim();
+      const resumeFile = document.getElementById('a-resume').files[0];
+      const additional = document.getElementById('a-additional').value.trim();
+
+      // Check capacity again (race condition guard)
+      const countRes = await sb(`applications?posting_id=eq.${currentPosting.id}&select=id`);
+      const countData = await countRes.json();
+      if (countData.length >= currentPosting.max_appls) {
+        document.getElementById('err-apply').textContent = 'Sorry, this posting just reached its maximum applications.';
+        return;
+      }
+
+      // Upload resume
+      const filePath = `${currentPosting.id}/${email}.pdf`;
+      const uploadRes = await fetch(
+        `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filePath}`,
+        {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON,
+            'Authorization': `Bearer ${SUPABASE_ANON}`,
+            'Content-Type': 'application/pdf',
+            'x-upsert': 'true'
+          },
+          body: resumeFile
+        }
+      );
+      if (!uploadRes.ok) {
+        document.getElementById('err-apply').textContent = 'Failed to upload resume. Please try again.';
+        return;
+      }
+      const resumeUrl = `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${filePath}`;
+
+      // Insert application
+      const appRes = await sb('applications', {
+        method: 'POST',
+        body: JSON.stringify({
+          posting_id: currentPosting.id,
+          name,
+          year,
+          email_address: email,
+          interest,
+          major,
+          resume_url: resumeUrl,
+          additional_details: additional
+        })
+      });
+      if (!appRes.ok) {
+        document.getElementById('err-apply').textContent = 'Submission failed. Please try again.';
+        return;
+      }
+
+      // Email to professor
+      await sendEmail(
+        currentPosting.email_add,
+        `New application for "${currentPosting.title}"`,
+        `<h2>New application received</h2>
+         <p><strong>Posting:</strong> ${currentPosting.title}</p>
+         <p><strong>Name:</strong> ${name}</p>
+         <p><strong>Email:</strong> ${email}</p>
+         <p><strong>Year:</strong> ${year}</p>
+         <p><strong>Major:</strong> ${major}</p>
+         <p><strong>Reason for interest:</strong><br/>${interest}</p>
+         ${additional ? `<p><strong>Additional details:</strong><br/>${additional}</p>` : ''}
+         <p><strong>Resume:</strong> <a href="${resumeUrl}">Download PDF</a></p>`,
+        resumeUrl
+      );
+
+      // Receipt email to student
+      await sendEmail(
+        email,
+        `Application receipt – "${currentPosting.title}"`,
+        `<h2>Application received!</h2>
+         <p>Thank you for applying to <strong>${currentPosting.title}</strong> posted by ${currentPosting.role} at ${currentPosting.department_aff}.</p>
+         <p>Your application has been forwarded to the posting contact. Good luck!</p>
+         <hr/>
+         <p><em>Your submission details:</em></p>
+         <p><strong>Name:</strong> ${name}<br/>
+         <strong>Year:</strong> ${year}<br/>
+         <strong>Major:</strong> ${major}</p>`
+      );
+
+      // Show success
+      document.getElementById('detail-view').style.display = 'none';
+      document.getElementById('apply-success').style.display = 'flex';
+    }
+
+    function backToListing() {
+      document.getElementById('apply-success').style.display = 'none';
+      openPosting(currentPosting);
+    }
+
+    function checkFileSize(input) {
+      const file = input.files[0];
+      if (file && file.size > 1 * 1024 * 1024) {
+        document.getElementById('err-a-resume').textContent = 'File must be under 1MB.';
+        input.value = '';
+      } else {
+        document.getElementById('err-a-resume').textContent = '';
+      }
+    }
+
+    // ─── Edit post flow ──────────────────────────────────────────
+    function openEditFlow() {
+      editPostingId = currentPosting.id;
+      document.getElementById('edit-modal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').style.display = 'none';
+      document.getElementById('edit-code-section').style.display = 'none';
+      document.getElementById('edit-email-input').value = '';
+      document.getElementById('edit-code-input').value = '';
+      editGenCode = null;
+    }
+
+    async function sendEditCode() {
+      const email = document.getElementById('edit-email-input').value.trim();
+      const errEl = document.getElementById('edit-email-error');
+      errEl.textContent = '';
+
+      if (!email.endsWith('@andrew.cmu.edu')) {
+        errEl.textContent = 'You must use your CMU-affiliated email address.';
+        return;
+      }
+
+      const res = await sb(`opportunities?id=eq.${editPostingId}&select=email_add`);
+      const data = await res.json();
+      if (!data.length || data[0].email_add !== email) {
+        errEl.textContent = 'This email address does not match the posting.';
+        return;
+      }
+
+      editGenCode = randomCode();
+      editVerifiedEmail = email;
+      const btn = document.getElementById('edit-send-btn');
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      await sendEmail(
+        email,
+        'CMU Research Portal – Edit Verification Code',
+        `<p>Your verification code to edit your posting is: <strong>${editGenCode}</strong></p>`
+      );
+      btn.textContent = 'Send verification code';
+      btn.disabled = false;
+      document.getElementById('edit-code-section').style.display = 'block';
+    }
+
+    function verifyEditCode() {
+      const entered = document.getElementById('edit-code-input').value.trim();
+      if (entered !== editGenCode) {
+        document.getElementById('edit-code-error').textContent = 'Incorrect code.';
+        return;
+      }
+      closeEditModal();
+      openEditForm();
+    }
+
+    function openEditForm() {
+      const p = currentPosting;
+      document.getElementById('ef-title').value = p.title;
+      updateCharCount(document.getElementById('ef-title'), 'ef-title-count', 20);
+      document.getElementById('ef-description').value = p.description;
+      updateWordCountFind(document.getElementById('ef-description'), 'ef-desc-count', 200);
+      document.getElementById('ef-category').value = p.category;
+      document.getElementById('ef-department').value = p.department_aff;
+      document.getElementById('ef-role').value = p.role;
+      document.getElementById('ef-job-role').value = p.job_role;
+      document.getElementById('ef-skills').value = p.skills || '';
+      document.getElementById('ef-start').value = p.start_date ? p.start_date.split('T')[0] : '';
+      document.getElementById('ef-end').value = p.end_date ? p.end_date.split('T')[0] : '';
+      document.getElementById('ef-max-appls').value = p.max_appls;
+      document.getElementById('ef-deadline').value = p.deadline ? p.deadline.split('T')[0] : '';
+
+      // Checkboxes
+      const years = p.student_year || '';
+      document.querySelectorAll('#ef-years input').forEach(cb => {
+        cb.checked = years.includes(cb.value);
+      });
+
+      document.getElementById('edit-form-modal').style.display = 'flex';
+    }
+
+    function closeEditFormModal() {
+      document.getElementById('edit-form-modal').style.display = 'none';
+    }
+
+    async function saveEdit() {
+      const title = document.getElementById('ef-title').value.trim();
+      const description = document.getElementById('ef-description').value.trim();
+      const checkedYears = [...document.querySelectorAll('#ef-years input:checked')].map(c => c.value);
+
+      let valid = true;
+      if (!title) { document.getElementById('ef-err-title').textContent = 'Required.'; valid = false; }
+      if (!description) { document.getElementById('ef-err-desc').textContent = 'Required.'; valid = false; }
+      if (wordCount(description) > 200) { document.getElementById('ef-err-desc').textContent = 'Max 200 words.'; valid = false; }
+      if (!valid) return;
+
+      const payload = {
+        title,
+        description,
+        category: document.getElementById('ef-category').value,
+        department_aff: document.getElementById('ef-department').value.trim(),
+        role: document.getElementById('ef-role').value.trim(),
+        job_role: document.getElementById('ef-job-role').value.trim(),
+        skills: document.getElementById('ef-skills').value.trim(),
+        start_date: document.getElementById('ef-start').value || null,
+        end_date: document.getElementById('ef-end').value || null,
+        student_year: checkedYears.join(', '),
+        max_appls: parseInt(document.getElementById('ef-max-appls').value),
+        deadline: document.getElementById('ef-deadline').value || null
+      };
+
+      const res = await sb(`opportunities?id=eq.${editPostingId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        document.getElementById('ef-err-submit').textContent = 'Save failed. Please try again.';
+        return;
+      }
+
+      closeEditFormModal();
+      await loadPostings();
+      const updated = allPostings.find(p => p.id === editPostingId);
+      if (updated) openPosting(updated);
+    }
+
+    // Init
+    loadPostings();
+  </script>
+</body>
+</html>

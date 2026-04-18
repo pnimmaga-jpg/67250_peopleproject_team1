@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CMU Research Portal</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="landing-page">
+  <div class="landing-bg">
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+  </div>
+
+  <main class="landing-main">
+    <header class="landing-header">
+      <div class="cmu-badge">CMU</div>
+      <h1 class="landing-title">Research<br/><em>Portal</em></h1>
+      <p class="landing-sub">Carnegie Mellon University · Undergraduate & Graduate Research Opportunities</p>
+    </header>
+
+    <div class="landing-cards">
+      <button class="landing-card card-post" onclick="goTo('post')">
+        <div class="card-icon">✦</div>
+        <div class="card-content">
+          <h2>Post an Opportunity</h2>
+          <p>Share your research project and find students to collaborate with</p>
+        </div>
+        <div class="card-arrow">→</div>
+      </button>
+
+      <div class="landing-divider"><span>or</span></div>
+
+      <button class="landing-card card-find" onclick="goTo('find')">
+        <div class="card-icon">◎</div>
+        <div class="card-content">
+          <h2>Find Research</h2>
+          <p>Browse open opportunities and apply to join a research team</p>
+        </div>
+        <div class="card-arrow">→</div>
+      </button>
+    </div>
+  </main>
+
+  <script>
+    function goTo(view) {
+      sessionStorage.setItem('view', view);
+      window.location.href = view === 'post' ? 'post.html' : 'find.html';
+    }
+  </script>
+</body>
+</html>
