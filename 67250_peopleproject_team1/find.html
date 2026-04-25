@@ -85,7 +85,10 @@
           </div>
           <h2 class="detail-title" id="d-title"></h2>
           <div class="detail-sub">
-            <span id="d-role"></span> · <span id="d-department"></span>
+            <span id="d-poster-name"></span> · <span id="d-role"></span> · <span id="d-department"></span>
+          </div>
+          <div class="detail-contact">
+            <span id="d-email"></span>
           </div>
           <button class="btn-edit" id="edit-post-btn" onclick="openEditFlow()">Edit post</button>
         </div>
@@ -146,7 +149,7 @@
             </div>
             <div class="form-group">
               <label for="a-major">Major</label>
-              <input type="text" id="a-major" placeholder="e.g. Computer Science" />
+              <input type="text" id="a-major" placeholder="e.g. Information Systems" />
               <span class="field-error" id="err-a-major"></span>
             </div>
             <div class="form-group full">
@@ -320,7 +323,7 @@
 
   <script>
     const SUPABASE_URL = 'https://anxpjjdkeckdfnzhhjer.supabase.co';
-    const SUPABASE_ANON = 'sb_publishable_WZm3lOvsWogZj3scOjmZ2Q_jgtWG5Po';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFueHBqamRrZWNrZGZuemhoamVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NTgyMDYsImV4cCI6MjA5MjAzNDIwNn0.u6792ltvw_fHlwS9apzTOkvbpvUPi3R3qxtUUuq1G7g';
     const BUCKET = 'resumes';
 
     let allPostings = [];
@@ -352,6 +355,7 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON,
           'Authorization': `Bearer ${SUPABASE_ANON}`
         },
         body: JSON.stringify(body)
@@ -508,6 +512,8 @@
       document.getElementById('d-timeline').textContent = `${fmtDate(p.start_date)} – ${fmtDate(p.end_date)}`;
       document.getElementById('d-years').textContent = p.student_year || '—';
       document.getElementById('d-skills').textContent = p.skills || '—';
+      document.getElementById('d-poster-name').textContent = p.poster_name || '';
+      document.getElementById('d-email').textContent = p.email_add;
 
       // Reset form
       clearApplyForm();
@@ -548,10 +554,10 @@
       if (!name) { document.getElementById('err-a-name').textContent = 'Required.'; valid = false; }
       if (!year) { document.getElementById('err-a-year').textContent = 'Required.'; valid = false; }
       if (!email) { document.getElementById('err-a-email').textContent = 'Required.'; valid = false; }
-      else if (!email.endsWith('@andrew.cmu.edu')) {
-        document.getElementById('err-a-email').textContent = 'You must use your CMU-affiliated email address (@andrew.cmu.edu).';
-        valid = false;
-      }
+      // else if (!email.endsWith('@andrew.cmu.edu')) {
+      //   document.getElementById('err-a-email').textContent = 'You must use your CMU-affiliated email address (@andrew.cmu.edu).';
+      //   valid = false;
+      // }
       if (!major) { document.getElementById('err-a-major').textContent = 'Required.'; valid = false; }
       if (!interest) { document.getElementById('err-a-interest').textContent = 'Required.'; valid = false; }
       else if (wordCount(interest) > 200) { document.getElementById('err-a-interest').textContent = 'Max 200 words.'; valid = false; }
@@ -670,13 +676,18 @@
         email,
         `Application receipt – "${currentPosting.title}"`,
         `<h2>Application received!</h2>
-         <p>Thank you for applying to <strong>${currentPosting.title}</strong> posted by ${currentPosting.role} at ${currentPosting.department_aff}.</p>
-         <p>Your application has been forwarded to the posting contact. Good luck!</p>
-         <hr/>
-         <p><em>Your submission details:</em></p>
-         <p><strong>Name:</strong> ${name}<br/>
-         <strong>Year:</strong> ${year}<br/>
-         <strong>Major:</strong> ${major}</p>`
+        <p>Thank you for applying to <strong>${currentPosting.title}</strong> posted by ${currentPosting.poster_name || currentPosting.role} at ${currentPosting.department_aff}.</p>
+        <p>Your application has been forwarded to the posting contact. Good luck!</p>
+        <hr/>
+        <h3>Your submission details</h3>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Year:</strong> ${year}</p>
+        <p><strong>Major:</strong> ${major}</p>
+        <p><strong>Reason for interest:</strong><br/>${interest}</p>
+        ${additional ? `<p><strong>Additional details:</strong><br/>${additional}</p>` : ''}
+        <p><strong>Resume:</strong> <a href="${resumeUrl}">Download your submitted PDF</a></p>`,
+        resumeUrl
       );
 
       // Show success
@@ -718,10 +729,10 @@
       const errEl = document.getElementById('edit-email-error');
       errEl.textContent = '';
 
-      if (!email.endsWith('@andrew.cmu.edu')) {
-        errEl.textContent = 'You must use your CMU-affiliated email address.';
-        return;
-      }
+      // if (!email.endsWith('@andrew.cmu.edu')) {
+      //   errEl.textContent = 'You must use your CMU-affiliated email address.';
+      //   return;
+      // }
 
       const res = await sb(`opportunities?id=eq.${editPostingId}&select=email_add`);
       const data = await res.json();

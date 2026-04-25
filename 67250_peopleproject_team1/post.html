@@ -104,6 +104,12 @@
           </div>
 
           <div class="form-group">
+            <label for="f-name">Your full name</label>
+            <input type="text" id="f-name" placeholder="e.g. Dr. Jane Smith" />
+            <span class="field-error" id="err-name"></span>
+          </div>
+
+          <div class="form-group">
             <label for="f-role">Your title / role</label>
             <input type="text" id="f-role" placeholder="e.g. Assistant Professor, PhD Candidate" />
             <span class="field-error" id="err-role"></span>
@@ -178,7 +184,7 @@
   </main>
 
   <!-- Edit modal -->
-  <div id="edit-modal" class="modal-overlay" style="display:none">
+  <!-- <div id="edit-modal" class="modal-overlay" style="display:none">
     <div class="modal">
       <button class="modal-close" onclick="closeEditModal()">✕</button>
       <h3>Edit Posting</h3>
@@ -199,11 +205,11 @@
         <button class="btn-primary" onclick="verifyEditCode()">Confirm & edit</button>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <script>
     const SUPABASE_URL = 'https://anxpjjdkeckdfnzhhjer.supabase.co';
-    const SUPABASE_ANON = 'sb_publishable_WZm3lOvsWogZj3scOjmZ2Q_jgtWG5Po';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFueHBqamRrZWNrZGZuemhoamVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NTgyMDYsImV4cCI6MjA5MjAzNDIwNn0.u6792ltvw_fHlwS9apzTOkvbpvUPi3R3qxtUUuq1G7g';
 
     let verifiedEmail = null;
     let generatedCode = null;
@@ -232,6 +238,7 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON,
           'Authorization': `Bearer ${SUPABASE_ANON}`
         },
         body: JSON.stringify(body)
@@ -272,10 +279,10 @@
       const errEl = document.getElementById('email-error');
       errEl.textContent = '';
 
-      if (!email.endsWith('@andrew.cmu.edu')) {
-        errEl.textContent = 'You must use your CMU-affiliated email address (@andrew.cmu.edu).';
-        return;
-      }
+      // if (!email.endsWith('@andrew.cmu.edu')) {
+      //   errEl.textContent = 'You must use your CMU-affiliated email address (@andrew.cmu.edu).';
+      //   return;
+      // }
 
       const btn = document.getElementById('send-code-btn');
       btn.textContent = 'Sending...';
@@ -338,6 +345,10 @@
       if (!description) { document.getElementById('err-description').textContent = 'Required.'; valid = false; }
       if (!category) { document.getElementById('err-category').textContent = 'Required.'; valid = false; }
       if (!department) { document.getElementById('err-department').textContent = 'Required.'; valid = false; }
+      
+      const posterName = document.getElementById('f-name').value.trim();
+      if (!posterName) { document.getElementById('err-name').textContent = 'Required.'; valid = false; }
+
       if (!role) { document.getElementById('err-role').textContent = 'Required.'; valid = false; }
       if (!jobRole) { document.getElementById('err-job-role').textContent = 'Required.'; valid = false; }
       if (!startDate) { document.getElementById('err-start').textContent = 'Required.'; valid = false; }
@@ -352,6 +363,7 @@
         title,
         description,
         email_add: verifiedEmail,
+        poster_name: posterName,
         category,
         department_aff: department,
         role,
@@ -387,58 +399,58 @@
     }
 
     // ─── Edit modal (used from find.html via postMessage or direct call) ─
-    function openEditModal(postingId) {
-      editPostingId = postingId;
-      document.getElementById('edit-modal').style.display = 'flex';
-    }
+    // function openEditModal(postingId) {
+    //   editPostingId = postingId;
+    //   document.getElementById('edit-modal').style.display = 'flex';
+    // }
 
-    function closeEditModal() {
-      document.getElementById('edit-modal').style.display = 'none';
-      editGeneratedCode = null;
-      editPostingId = null;
-      document.getElementById('edit-email-input').value = '';
-      document.getElementById('edit-code-section').style.display = 'none';
-    }
+    // function closeEditModal() {
+    //   document.getElementById('edit-modal').style.display = 'none';
+    //   editGeneratedCode = null;
+    //   editPostingId = null;
+    //   document.getElementById('edit-email-input').value = '';
+    //   document.getElementById('edit-code-section').style.display = 'none';
+    // }
 
-    async function sendEditCode() {
-      const email = document.getElementById('edit-email-input').value.trim();
-      const errEl = document.getElementById('edit-email-error');
-      errEl.textContent = '';
+    // async function sendEditCode() {
+    //   const email = document.getElementById('edit-email-input').value.trim();
+    //   const errEl = document.getElementById('edit-email-error');
+    //   errEl.textContent = '';
 
-      if (!email.endsWith('@andrew.cmu.edu')) {
-        errEl.textContent = 'You must use your CMU-affiliated email address.';
-        return;
-      }
+    //   if (!email.endsWith('@andrew.cmu.edu')) {
+    //     errEl.textContent = 'You must use your CMU-affiliated email address.';
+    //     return;
+    //   }
 
-      // Check that this email matches the posting
-      const res = await sb(`opportunities?id=eq.${editPostingId}&select=email_add`);
-      const data = await res.json();
-      if (!data.length || data[0].email_add !== email) {
-        errEl.textContent = 'This email address does not match the posting.';
-        return;
-      }
+    //   // Check that this email matches the posting
+    //   const res = await sb(`opportunities?id=eq.${editPostingId}&select=email_add`);
+    //   const data = await res.json();
+    //   if (!data.length || data[0].email_add !== email) {
+    //     errEl.textContent = 'This email address does not match the posting.';
+    //     return;
+    //   }
 
-      editGeneratedCode = randomCode();
-      await sendEmail(
-        email,
-        'CMU Research Portal – Edit Verification Code',
-        `<p>Your verification code to edit your posting is: <strong>${editGeneratedCode}</strong></p>`
-      );
-      document.getElementById('edit-code-section').style.display = 'block';
-    }
+    //   editGeneratedCode = randomCode();
+    //   await sendEmail(
+    //     email,
+    //     'CMU Research Portal – Edit Verification Code',
+    //     `<p>Your verification code to edit your posting is: <strong>${editGeneratedCode}</strong></p>`
+    //   );
+    //   document.getElementById('edit-code-section').style.display = 'block';
+    // }
 
-    async function verifyEditCode() {
-      const entered = document.getElementById('edit-code-input').value.trim();
-      const errEl = document.getElementById('edit-code-error');
-      if (entered !== editGeneratedCode) {
-        errEl.textContent = 'Incorrect code.';
-        return;
-      }
-      // Redirect to edit form
-      sessionStorage.setItem('editPostingId', editPostingId);
-      sessionStorage.setItem('editEmail', document.getElementById('edit-email-input').value.trim());
-      window.location.href = `edit.html`;
-    }
+    // async function verifyEditCode() {
+    //   const entered = document.getElementById('edit-code-input').value.trim();
+    //   const errEl = document.getElementById('edit-code-error');
+    //   if (entered !== editGeneratedCode) {
+    //     errEl.textContent = 'Incorrect code.';
+    //     return;
+    //   }
+    //   // Redirect to edit form
+    //   sessionStorage.setItem('editPostingId', editPostingId);
+    //   sessionStorage.setItem('editEmail', document.getElementById('edit-email-input').value.trim());
+    //   window.location.href = `edit.html`;
+    // }
   </script>
 </body>
 </html>

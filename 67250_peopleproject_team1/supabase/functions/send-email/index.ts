@@ -1,18 +1,17 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
-const FROM_ADDRESS = "CMU Research Portal <onboarding@resend.dev>"; // ← update this
+const FROM_ADDRESS = "CMU Research Portal <onboarding@resend.dev>";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-    });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
@@ -21,11 +20,10 @@ serve(async (req) => {
     if (!to || !subject || !html) {
       return new Response(JSON.stringify({ error: "Missing required fields" }), {
         status: 400,
-        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Build Resend payload
     const resendPayload: Record<string, unknown> = {
       from: FROM_ADDRESS,
       to: [to],
@@ -33,22 +31,15 @@ serve(async (req) => {
       html,
     };
 
-    // Attach resume PDF if URL provided
     if (attachmentUrl) {
       try {
         const fileRes = await fetch(attachmentUrl);
         if (fileRes.ok) {
           const arrayBuffer = await fileRes.arrayBuffer();
           const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-          resendPayload.attachments = [
-            {
-              filename: "resume.pdf",
-              content: base64,
-            },
-          ];
+          resendPayload.attachments = [{ filename: "resume.pdf", content: base64 }];
         }
       } catch (e) {
-        // If attachment fetch fails, send email without it
         console.error("Failed to attach resume:", e);
       }
     }
@@ -67,17 +58,17 @@ serve(async (req) => {
       console.error("Resend error:", err);
       return new Response(JSON.stringify({ error: "Failed to send email" }), {
         status: 500,
-        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     return new Response(JSON.stringify({ ok: true }), {
-      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     return new Response(JSON.stringify({ error: String(e) }), {
       status: 500,
-      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

@@ -88,6 +88,10 @@ input, textarea, select {
   overflow: hidden;
 }
 
+h2 {
+  color: white;
+}
+
 .landing-bg {
   position: fixed;
   inset: 0;
@@ -115,36 +119,6 @@ input, textarea, select {
   height: 400px;
   background: radial-gradient(ellipse, rgba(200,16,46,0.08) 0%, transparent 70%);
   pointer-events: none;
-}
-
-.landing-main {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3.5rem;
-  padding: 2rem;
-  width: 100%;
-  max-width: 680px;
-}
-
-.landing-header {
-  text-align: center;
-}
-
-.cmu-badge {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  padding: 0.3rem 0.8rem;
-  border-radius: 100px;
-  margin-bottom: 1.2rem;
 }
 
 .landing-title {
@@ -186,7 +160,7 @@ input, textarea, select {
   max-width: 680px;
 }
 
-.cmu-badge {
+.badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -301,7 +275,7 @@ input, textarea, select {
   height: 48px;
   display: grid;
   place-items: center;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   border-radius: 14px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.07);
@@ -317,30 +291,17 @@ input, textarea, select {
 
 .card-content h2 {
   font-family: var(--font-display);
-  font-size: 1.55rem;
+  font-size: 1.475rem;
   font-weight: 400;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.425rem;
   line-height: 1.1;
 }
 
 .card-content p {
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   color: #aaa6af;
   line-height: 1.7;
   max-width: 28ch;
-}
-
-.card-arrow {
-  font-size: 1.15rem;
-  color: #78747d;
-  align-self: flex-end;
-  margin-top: auto;
-  transition: transform 0.24s ease, color 0.24s ease;
-}
-
-.landing-card:hover .card-arrow {
-  transform: translateX(5px);
-  color: var(--text);
 }
 
 @media (max-width: 768px) {
@@ -359,35 +320,20 @@ input, textarea, select {
 .card-post:hover { border-color: var(--accent); }
 .card-find:hover { border-color: var(--gold); }
 
-.card-icon {
-  font-size: 1.4rem;
-}
-
 .card-post .card-icon { color: var(--accent); }
 .card-find .card-icon { color: var(--gold); }
 
-.card-content h2 {
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  font-weight: 400;
-  margin-bottom: 0.4rem;
-}
-
-.card-content p {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  line-height: 1.6;
+.landing-card:hover .card-arrow {
+  transform: translateX(4px);
+  color: var(--text);
 }
 
 .card-arrow {
-  font-size: 1.2rem;
-  color: var(--text-dim);
+  font-size: 1.175rem;
+  color: #78747d;
   align-self: flex-end;
-  transition: transform 0.2s;
-}
-
-.landing-card:hover .card-arrow {
-  transform: translateX(4px);
+  margin-top: auto;
+  transition: transform 0.22s ease, color 0.22s ease;
 }
 
 /* ─── Post page ──────────────────────────────────────────── */
@@ -897,6 +843,12 @@ textarea {
   align-items: center;
   gap: 0.8rem;
   margin-bottom: 0.8rem;
+}
+
+.detail-contact {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin-top: 0.3rem;
 }
 
 .detail-category {
