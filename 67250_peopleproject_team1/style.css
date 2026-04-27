@@ -9,9 +9,9 @@
   --text-muted: #8a8790;
   --text-dim: #55535d;
   --accent: #c8102e;        /* CMU red */
-  --accent-soft: #e8394d;
+  --accent-soft: #d1b265;
   --accent-glow: rgba(200, 16, 46, 0.15);
-  --gold: #e8c87a;
+  --gold: #c19525;
   --gold-dim: rgba(232, 200, 122, 0.12);
   --success: #4caf7d;
   --font-display: 'DM Serif Display', Georgia, serif;
@@ -377,7 +377,7 @@ h2 {
   font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.12em;
-  color: var(--accent);
+  color: var(--gold);
   font-family: var(--font-mono);
   margin-bottom: 0.6rem;
 }
@@ -530,7 +530,7 @@ textarea {
 }
 
 .checkbox-item:has(input:checked) {
-  border-color: var(--accent);
+  border-color: var(--gold);
   background: var(--accent-glow);
   color: var(--text);
 }
@@ -547,7 +547,7 @@ textarea {
 
 /* Buttons */
 .btn-primary {
-  background: var(--accent);
+  background: var(--gold);
   color: #fff;
   border: none;
   border-radius: var(--radius);
