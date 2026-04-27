@@ -10,7 +10,9 @@
 <body class="post-page">
 
   <nav class="topnav">
-    <a href="index.html" class="nav-logo">CMU Research Portal</a>
+    <a href="index.html" class="nav-logo">
+      <img src="static/logo.png" alt="TartanResearch Logo" class="nav-logo-img"/>
+    </a>
     <a href="find.html" class="nav-switch" onclick="sessionStorage.setItem('view','find')">Browse Opportunities →</a>
   </nav>
 
@@ -21,7 +23,7 @@
       <section id="step-verify" class="post-step active">
         <div class="step-header">
           <span class="step-num">01</span>
-          <h2>Verify your CMU email</h2>
+          <h2>Verify your CMU email to post an opportunity</h2>
           <p>You'll receive a 6-digit code to confirm your identity before posting.</p>
         </div>
         <div class="form-group">
@@ -278,6 +280,11 @@
       const email = document.getElementById('poster-email').value.trim();
       const errEl = document.getElementById('email-error');
       errEl.textContent = '';
+
+      if(!email.includes('@')){
+        errEl.textContent = 'You must use your CMU-affiliated email address (@andrew.cmu.edu).';
+        return;
+      }
 
       // if (!email.endsWith('@andrew.cmu.edu')) {
       //   errEl.textContent = 'You must use your CMU-affiliated email address (@andrew.cmu.edu).';
