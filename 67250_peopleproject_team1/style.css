@@ -1,17 +1,17 @@
 /* ─── Variables ─────────────────────────────────────────── */
 :root {
-  --bg: #0e0e0f;
-  --surface: #161618;
+  --bg: #a1a1ae;
+  --surface: #3c3c43;
   --surface2: #1e1e21;
   --border: #2a2a2e;
   --border-light: #353539;
   --text: #f0ede8;
-  --text-muted: #8a8790;
-  --text-dim: #55535d;
+  --text-muted: #ffffff;
+  --text-dim: #903838;
   --accent: #c8102e;        /* CMU red */
-  --accent-soft: #d1b265;
+  --accent-soft: rgb(90, 65, 0);
   --accent-glow: rgba(200, 16, 46, 0.15);
-  --gold: #c19525;
+  --gold: #c2c0bc;
   --gold-dim: rgba(232, 200, 122, 0.12);
   --success: #4caf7d;
   --font-display: 'DM Serif Display', Georgia, serif;
@@ -138,7 +138,7 @@ h2 {
 
 .landing-sub {
   margin-top: 1rem;
-  font-size: 0.8rem;
+  font-size: 0.79rem;
   color: var(--text-dim);
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -191,15 +191,6 @@ h2 {
 .landing-title em {
   font-style: italic;
   color: var(--gold);
-}
-
-.landing-sub {
-  margin-top: 1rem;
-  font-size: 0.78rem;
-  color: #908c96;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  line-height: 1.7;
 }
 
 .landing-cards {
